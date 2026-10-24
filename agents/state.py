@@ -15,6 +15,7 @@ class ClaimTriageState(TypedDict, total=False):
     # Agent 2: regulatory research
     retrieved_passages: list[dict[str, Any]]
     applicable_provisions: list[dict[str, Any]]
+    clause_assessments: list[dict[str, Any]]
     verification_status: Literal[
         "pending",
         "verified",

@@ -3,6 +3,7 @@ import re
 
 from app.models import PassengerClaim
 from agents.claim_analysis import analyze_claim
+from agents.evidence_assessment import assess_provisions
 from agents.state import ClaimTriageState
 from tools.retrieval import RegulatoryRetrieval
 
@@ -43,6 +44,8 @@ CLAUSES_BY_DISRUPTION = {
     ],
 }
 
+DGCA_SOURCE = "dgca_car_revision_4.pdf"
+
 
 def analyze_claim_node(state: ClaimTriageState) -> dict:
     """Analyze a validated claim and identify missing information."""
@@ -63,6 +66,7 @@ def analyze_claim_node(state: ClaimTriageState) -> dict:
         "next_action": next_action,
         "retry_count": state.get("retry_count", 0),
         "verification_status": "pending",
+        "escalation_reason": None,
     }
 
 
@@ -93,27 +97,28 @@ def research_claim_node(state: ClaimTriageState) -> dict:
         clause_results = retrieval.get_clause(clause_number)
 
         for clause in clause_results:
-            if clause.get("source") == "dgca_car_revision_4.pdf":
+            if clause.get("source") == DGCA_SOURCE:
                 applicable_provisions.append(clause)
 
     return {
         "retrieved_passages": passages,
         "applicable_provisions": applicable_provisions,
+        "clause_assessments": [],
         "next_action": "verify",
         "verification_status": "pending",
+        "escalation_reason": None,
     }
 
 
 def verify_evidence_node(state: ClaimTriageState) -> dict:
     """
-    Check required clause headings and source metadata.
+    Verify clause retrieval structure and provenance.
 
-    This verifies retrieval structure, not legal applicability
-    or passenger eligibility.
+    This does not establish legal applicability, passenger eligibility,
+    or entitlement to compensation.
     """
 
     provisions = state.get("applicable_provisions", [])
-
     disruption_type = state.get("claim_facts", {}).get(
         "disruption_type", "other"
     )
@@ -134,40 +139,52 @@ def verify_evidence_node(state: ClaimTriageState) -> dict:
         text = provision.get("text", "")
         clause_number = provision.get("clause_number", "")
 
+        if source != DGCA_SOURCE:
+            problems.append(
+                "A provision has an unexpected or missing DGCA source."
+            )
+            continue
+
         if (
-            not source
-            or not isinstance(page, int)
+            not isinstance(page, int)
+            or isinstance(page, bool)
+            or page < 1
+            or not isinstance(text, str)
             or not text.strip()
         ):
             problems.append(
-                "A retrieved provision has incomplete source metadata."
+                "A retrieved provision has invalid page or text metadata."
             )
+            continue
+
+        if clause_number not in required_clauses:
             continue
 
         escaped_clause = re.escape(clause_number)
         heading_pattern = (
-            rf"(?m)^\s*{escaped_clause}\s+(?=\S)"
+            rf"(?m)^\s*{escaped_clause}(?=\s|\(|$)"
         )
 
-        if (
-            clause_number in required_clauses
-            and re.search(heading_pattern, text)
-        ):
+        if re.search(heading_pattern, text):
             found_clauses.add(clause_number)
+        else:
+            problems.append(
+                f"Clause {clause_number} has no matching heading in its text."
+            )
 
     missing_clauses = sorted(required_clauses - found_clauses)
 
     if missing_clauses:
         problems.append(
-            "Could not verify clause headings: "
+            "Could not verify required candidate clause headings: "
             + ", ".join(missing_clauses)
         )
 
     if problems:
         return {
             "verification_status": "failed",
-            "next_action": "human_review",
-            "escalation_reason": "; ".join(problems),
+            "next_action": "retry",
+            "escalation_reason": "; ".join(dict.fromkeys(problems)),
         }
 
     return {
@@ -176,8 +193,24 @@ def verify_evidence_node(state: ClaimTriageState) -> dict:
         "escalation_reason": None,
     }
 
+
+def assess_evidence_node(state: ClaimTriageState) -> dict:
+    """Assess retrieved provisions against the available claim facts."""
+
+    claim_facts = state.get("claim_facts", {})
+    provisions = state.get("applicable_provisions", [])
+
+    assessments = assess_provisions(claim_facts, provisions)
+
+    return {
+        "clause_assessments": assessments,
+        "next_action": "complete",
+    }
+
+
 def request_evidence_node(state: ClaimTriageState) -> dict:
     """Prepare an explicit request for missing claim information."""
+
     missing_information = state.get("missing_information", [])
 
     field_prompts = {
@@ -204,4 +237,3 @@ def request_evidence_node(state: ClaimTriageState) -> dict:
         "next_action": "request_evidence",
         "evidence_request": questions,
     }
-

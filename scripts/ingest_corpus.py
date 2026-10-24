@@ -17,26 +17,45 @@ PDF_FILES = [
 ]
 
 
+
+def clean_extracted_text(text: str) -> str:
+    """Normalize whitespace and repair confirmed PDF extraction artefacts."""
+
+    lines = []
+
+    for line in text.splitlines():
+        line = " ".join(line.split())
+
+        # Repair only the extraction errors confirmed in the DGCA PDF.
+        line = line.replace("a ffected", "affected")
+        line = line.replace("t he", "the")
+
+        if line:
+            lines.append(line)
+
+    return "\n".join(lines)
+
+
+
 def extract_pdf_text(pdf_path: Path) -> list[dict]:
-    """Extract text page by page while retaining source information."""
+    """Extract PDF text page by page while retaining source information."""
 
     if not pdf_path.exists():
-        raise FileNotFoundError(
-            f"PDF not found: {pdf_path}"
-        )
+        raise FileNotFoundError(f"PDF not found: {pdf_path}")
 
     reader = PdfReader(str(pdf_path))
     extracted_pages = []
 
     for page_number, page in enumerate(reader.pages, start=1):
-        text = page.extract_text() or ""
+        raw_text = page.extract_text() or ""
+        text = clean_extracted_text(raw_text)
 
         if text.strip():
             extracted_pages.append(
                 {
                     "source": pdf_path.name,
                     "page": page_number,
-                    "text": text.strip(),
+                    "text": text,
                 }
             )
 
@@ -57,9 +76,7 @@ def main():
         pages = extract_pdf_text(pdf_path)
         all_pages.extend(pages)
 
-        print(
-            f"Extracted {len(pages)} pages from {filename}"
-        )
+        print(f"Extracted {len(pages)} pages from {filename}")
 
     with OUTPUT_FILE.open("w", encoding="utf-8") as file:
         json.dump(

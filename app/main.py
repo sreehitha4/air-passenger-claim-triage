@@ -11,7 +11,7 @@ app = FastAPI(
         "an evidence-grounded triage workflow. "
         "The service does not authorize payments."
     ),
-    version="0.3.0",
+    version="0.4.0",
 )
 
 
@@ -58,15 +58,23 @@ async def triage_claim(claim: PassengerClaim):
             "verification_status": result.get(
                 "verification_status", "pending"
             ),
+            "retrieved_passages": result.get(
+                "retrieved_passages", []
+            ),
             "applicable_provisions": result.get(
                 "applicable_provisions", []
             ),
+            "clause_assessments": result.get(
+                "clause_assessments", []
+            ),
             "escalation_reason": result.get("escalation_reason"),
+            "recommendation": result.get("recommendation"),
             "message": (
-                "Triage completed. This is not a final legal "
-                "determination or authorization to pay compensation."
+                "Triage completed. Evidence assessments are preliminary "
+                "and do not establish legal eligibility or authorize payment."
             ),
         }
+
     except Exception as exc:
         raise HTTPException(
             status_code=500,
