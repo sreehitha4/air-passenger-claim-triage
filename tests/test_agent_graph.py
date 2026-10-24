@@ -25,8 +25,14 @@ def test_graph_analyzes_claim():
         "retry_count": 0,
     })
 
+    # Claim analysis
     assert result["claim_id"] == "CLAIM-GRAPH-001"
     assert result["claim_facts"]["disruption_type"] == "cancellation"
     assert result["missing_information"] == []
-    assert result["next_action"] == "research"
-    assert result["verification_status"] == "pending"
+
+    # Research and verification
+    assert result["next_action"] == "complete"
+    assert result["verification_status"] == "verified"
+    assert len(result["retrieved_passages"]) > 0
+    assert len(result["applicable_provisions"]) > 0
+    assert result["escalation_reason"] is None

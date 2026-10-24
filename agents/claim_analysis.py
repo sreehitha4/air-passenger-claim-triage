@@ -4,11 +4,12 @@ from app.models import PassengerClaim
 
 def analyze_claim(claim: PassengerClaim) -> dict:
     """
-    Extract relevant facts from a validated passenger claim.
+    Extract claim facts and identify information needed for assessment.
 
-    This component organizes information for downstream agents.
-    It does not decide legal entitlement.
+    This component does not decide legal entitlement.
     """
+
+    disruption_type = claim.disruption_type.value
 
     facts = {
         "claim_id": claim.claim_id,
@@ -16,7 +17,7 @@ def analyze_claim(claim: PassengerClaim) -> dict:
         "flight_number": claim.flight_number,
         "departure_airport": claim.departure_airport,
         "arrival_airport": claim.arrival_airport,
-        "disruption_type": claim.disruption_type.value,
+        "disruption_type": disruption_type,
         "scheduled_departure": claim.scheduled_departure.isoformat(),
         "notification_time": (
             claim.notification_time.isoformat()
@@ -38,15 +39,30 @@ def analyze_claim(claim: PassengerClaim) -> dict:
 
     missing_information = []
 
-    if claim.notification_time is None:
+    # Notification timing is relevant to cancellation assessment.
+    if (
+        disruption_type == "cancellation"
+        and claim.notification_time is None
+    ):
         missing_information.append("notification_time")
 
+    # Alternate-flight timing is useful when a passenger took
+    # an alternate flight after a cancellation.
     if (
-        claim.disruption_type.value == "cancellation"
+        disruption_type == "cancellation"
         and claim.alternate_flight_taken
         and claim.alternate_flight_delay_hours is None
     ):
         missing_information.append("alternate_flight_delay_hours")
+
+    # Delay assessment needs actual departure information when
+    # the claim does not otherwise describe the actual timing.
+    if (
+        disruption_type == "delay"
+        and claim.actual_departure is None
+        and "actual departure" not in claim.description.lower()
+    ):
+        missing_information.append("actual_departure")
 
     return {
         "claim_id": claim.claim_id,

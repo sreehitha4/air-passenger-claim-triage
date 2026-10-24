@@ -8,3 +8,5 @@ faiss-cpu
 pydantic
 httpx
 pytest
+sentence-transformers
+pypdf

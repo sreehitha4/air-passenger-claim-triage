@@ -1,4 +1,5 @@
-﻿.venv/
+﻿
+.venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -8,3 +9,13 @@ __pycache__/
 .coverage
 htmlcov/
 .vscode/
+
+# Generated corpus and vector index
+data/extracted_corpus.json
+data/corpus_chunks.json
+data/vector_index/
+
+# Supplementary backup not used by the current pipeline
+corpus/moca_passenger_charter_backup.pdf
+# Source PDFs retained locally; check redistribution permissions before publishing
+corpus/*.pdf

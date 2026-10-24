@@ -6,6 +6,7 @@ class ClaimTriageState(TypedDict, total=False):
     # Input
     claim: dict[str, Any]
     claim_id: str
+    evidence_request: list[str]
 
     # Agent 1: claim analysis
     claim_facts: dict[str, Any]
@@ -25,6 +26,7 @@ class ClaimTriageState(TypedDict, total=False):
     retry_count: int
     next_action: Literal[
         "research",
+        "verify",
         "retry",
         "request_evidence",
         "human_review",
