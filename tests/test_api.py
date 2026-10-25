@@ -25,6 +25,22 @@ def valid_claim():
     }
 
 
+def delay_claim_missing_departure():
+    claim = valid_claim()
+    claim.update({
+        "claim_id": "CLAIM-API-DELAY-001",
+        "disruption_type": "delay",
+        "notification_time": None,
+        "actual_departure": None,
+        "alternate_flight_taken": False,
+        "alternate_flight_delay_hours": None,
+        "description": (
+            "The actual departure was delayed, but the exact time is unknown."
+        ),
+    })
+    return claim
+
+
 def test_health_endpoint():
     response = client.get("/health")
 
@@ -59,3 +75,20 @@ def test_unknown_field_is_rejected_by_api():
     response = client.post("/claims/validate", json=claim)
 
     assert response.status_code == 422
+
+
+def test_triage_endpoint_requests_missing_delay_departure_evidence():
+    response = client.post(
+        "/claims/triage",
+        json=delay_claim_missing_departure(),
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["claim_id"] == "CLAIM-API-DELAY-001"
+    assert body["next_action"] == "request_evidence"
+    assert "actual_departure" in body["missing_information"]
+    assert body["evidence_request"]
+    assert body.get("recommendation") is None
