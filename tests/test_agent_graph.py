@@ -129,3 +129,28 @@ def test_graph_escalates_when_clause_heading_mismatches_citation(
     assert result["retry_count"] == 2
     assert result["escalation_reason"] is not None
     assert result.get("recommendation") is None
+
+
+def test_graph_requests_evidence_for_missing_delay_departure_time():
+    claim = make_cancellation_claim()
+    claim.update({
+        "claim_id": "CLAIM-GRAPH-DELAY-001",
+        "disruption_type": "delay",
+        "actual_departure": None,
+        "alternate_flight_taken": False,
+        "alternate_flight_delay_hours": None,
+        "description": (
+            "The actual departure was delayed, but the exact time is unknown."
+        ),
+    })
+
+    result = claim_graph.invoke({
+        "claim": claim,
+        "retry_count": 0,
+    })
+
+    assert result["claim_facts"]["disruption_type"] == "delay"
+    assert "actual_departure" in result["missing_information"]
+    assert result["next_action"] == "request_evidence"
+    assert result["evidence_request"]
+    assert result.get("recommendation") is None
