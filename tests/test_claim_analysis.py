@@ -81,3 +81,40 @@ def test_non_cancellation_does_not_require_cancellation_notification():
 
     assert "notification_time" not in result["missing_information"]
     assert result["legal_conclusion"] is None
+
+
+def test_cancellation_scenario_extracts_notification_and_alternate_delay():
+    """Check the 90-minute notification and 4-hour alternate-flight scenario."""
+
+    claim = make_claim(
+        scheduled_departure="2026-11-01T10:00:00+05:30",
+        notification_time="2026-11-01T08:30:00+05:30",
+        alternate_flight_taken=True,
+        alternate_flight_delay_hours=4,
+    )
+
+    result = analyze_claim(claim)
+    facts = result["claim_facts"]
+
+    assert facts["notification_time"] == "2026-11-01T08:30:00+05:30"
+    assert facts["scheduled_departure"] == "2026-11-01T10:00:00+05:30"
+    assert facts["alternate_flight_taken"] is True
+    assert facts["alternate_flight_delay_hours"] == 4
+    assert result["missing_information"] == []
+    assert result["legal_conclusion"] is None
+
+
+def test_cancellation_analysis_does_not_decide_compensation_eligibility():
+    """Extracting claim facts must not automatically approve compensation."""
+
+    claim = make_claim(
+        notification_time="2026-11-01T08:30:00+05:30",
+        alternate_flight_taken=True,
+        alternate_flight_delay_hours=4,
+    )
+
+    result = analyze_claim(claim)
+
+    assert result["requires_regulatory_research"] is True
+    assert result["legal_conclusion"] is None
+

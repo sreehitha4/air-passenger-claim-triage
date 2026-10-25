@@ -1,6 +1,6 @@
 
 from app.models import PassengerClaim
-from agents.nodes import analyze_claim_node
+from agents.nodes import analyze_claim_node, verify_evidence_node
 
 
 def test_analysis_node_routes_complete_claim_to_research():
@@ -30,3 +30,87 @@ def test_analysis_node_routes_complete_claim_to_research():
     assert result["missing_information"] == []
     assert result["next_action"] == "research"
     assert result["verification_status"] == "pending"
+
+
+def test_verification_rejects_missing_required_clauses():
+    result = verify_evidence_node({
+        "claim_facts": {"disruption_type": "cancellation"},
+        "applicable_provisions": [],
+        "retry_count": 0,
+    })
+
+    assert result["verification_status"] == "failed"
+    assert "3.3.1" in result["escalation_reason"]
+    assert result["next_action"] == "retry"
+
+
+def test_verification_rejects_unexpected_source():
+    result = verify_evidence_node({
+        "claim_facts": {"disruption_type": "cancellation"},
+        "applicable_provisions": [
+            {
+                "source": "untrusted_document.pdf",
+                "page": 5,
+                "text": "3.3.1 Cancellation provision text",
+                "clause_number": "3.3.1",
+            }
+        ],
+        "retry_count": 0,
+    })
+
+    assert result["verification_status"] == "failed"
+    assert "source" in result["escalation_reason"].lower()
+
+
+def test_verification_rejects_invalid_page_metadata():
+    result = verify_evidence_node({
+        "claim_facts": {"disruption_type": "cancellation"},
+        "applicable_provisions": [
+            {
+                "source": "dgca_car_revision_4.pdf",
+                "page": "five",
+                "text": "3.3.1 Cancellation provision text",
+                "clause_number": "3.3.1",
+            }
+        ],
+        "retry_count": 0,
+    })
+
+    assert result["verification_status"] == "failed"
+    assert "metadata" in result["escalation_reason"].lower()
+
+
+def test_verification_rejects_mismatched_clause_heading():
+    result = verify_evidence_node({
+        "claim_facts": {"disruption_type": "cancellation"},
+        "applicable_provisions": [
+            {
+                "source": "dgca_car_revision_4.pdf",
+                "page": 5,
+                "text": "3.3.4 No such compensation shall be payable.",
+                "clause_number": "3.3.1",
+            }
+        ],
+        "retry_count": 0,
+    })
+
+    assert result["verification_status"] == "failed"
+    assert "3.3.1" in result["escalation_reason"]
+
+
+def test_verification_rejects_empty_clause_text():
+    result = verify_evidence_node({
+        "claim_facts": {"disruption_type": "cancellation"},
+        "applicable_provisions": [
+            {
+                "source": "dgca_car_revision_4.pdf",
+                "page": 5,
+                "text": "",
+                "clause_number": "3.3.1",
+            }
+        ],
+        "retry_count": 0,
+    })
+
+    assert result["verification_status"] == "failed"
+    assert "metadata" in result["escalation_reason"].lower()
