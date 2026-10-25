@@ -39,15 +39,12 @@ def analyze_claim(claim: PassengerClaim) -> dict:
 
     missing_information = []
 
-    # Notification timing is relevant to cancellation assessment.
     if (
         disruption_type == "cancellation"
         and claim.notification_time is None
     ):
         missing_information.append("notification_time")
 
-    # Alternate-flight timing is useful when a passenger took
-    # an alternate flight after a cancellation.
     if (
         disruption_type == "cancellation"
         and claim.alternate_flight_taken
@@ -55,12 +52,11 @@ def analyze_claim(claim: PassengerClaim) -> dict:
     ):
         missing_information.append("alternate_flight_delay_hours")
 
-    # Delay assessment needs actual departure information when
-    # the claim does not otherwise describe the actual timing.
+    # A description mentioning departure does not replace the
+    # structured actual-departure timestamp.
     if (
         disruption_type == "delay"
         and claim.actual_departure is None
-        and "actual departure" not in claim.description.lower()
     ):
         missing_information.append("actual_departure")
 

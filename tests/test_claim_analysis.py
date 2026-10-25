@@ -69,6 +69,23 @@ def test_delay_claim_without_actual_departure_is_flagged():
     assert "actual_departure" in result["missing_information"]
 
 
+def test_delay_description_does_not_replace_actual_departure_timestamp():
+    """A text mention of departure must not replace the structured timestamp."""
+    claim = make_claim(
+        disruption_type="delay",
+        actual_departure=None,
+        alternate_flight_taken=False,
+        alternate_flight_delay_hours=None,
+        description="The actual departure was delayed, but the exact time is unknown.",
+    )
+
+    result = analyze_claim(claim)
+
+    assert result["claim_facts"]["actual_departure"] is None
+    assert "actual_departure" in result["missing_information"]
+    assert result["legal_conclusion"] is None
+
+
 def test_non_cancellation_does_not_require_cancellation_notification():
     claim = make_claim(
         disruption_type="denied_boarding",
@@ -117,4 +134,3 @@ def test_cancellation_analysis_does_not_decide_compensation_eligibility():
 
     assert result["requires_regulatory_research"] is True
     assert result["legal_conclusion"] is None
-
