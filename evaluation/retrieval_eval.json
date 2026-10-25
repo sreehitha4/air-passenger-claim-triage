@@ -1,0 +1,158 @@
+
+{
+  "evaluation_version": 1,
+  "description": "Initial retrieval benchmark based on DGCA CAR Revision 4 corpus chunks. Relevance labels are initial manual labels and should be reviewed.",
+  "top_k": 5,
+  "queries": [
+    {
+      "id": "R001",
+      "topic": "cancellation_notice",
+      "query": "How long before scheduled departure must an airline inform passengers about a flight cancellation?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p5_c1"]
+    },
+    {
+      "id": "R002",
+      "topic": "cancellation_options",
+      "query": "What options must an airline offer when passengers are informed about cancellation less than two weeks but at least 24 hours before departure?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p5_c1"]
+    },
+    {
+      "id": "R003",
+      "topic": "cancellation_compensation",
+      "query": "What happens when passengers were not informed about cancellation as required or missed a connecting flight booked on the same ticket?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p5_c1", "dgca_car_revision_4_p5_c2"]
+    },
+    {
+      "id": "R004",
+      "topic": "cancellation_compensation",
+      "query": "How do block time and booked one-way basic fare affect compensation for certain flight cancellations?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p5_c1", "dgca_car_revision_4_p5_c2"]
+    },
+    {
+      "id": "R005",
+      "topic": "passenger_contact_information",
+      "query": "What happens if passengers did not provide adequate email or phone contact information when booking a cancelled flight?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p5_c2", "dgca_car_revision_4_p5_c3"]
+    },
+    {
+      "id": "R006",
+      "topic": "extraordinary_circumstances",
+      "query": "When can extraordinary circumstances beyond the airline's control affect cancellation compensation?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p5_c3", "dgca_car_revision_4_p6_c1"]
+    },
+    {
+      "id": "R007",
+      "topic": "refunds",
+      "query": "Which other Civil Aviation Requirements govern refunds of air tickets?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p6_c1"]
+    },
+    {
+      "id": "R008",
+      "topic": "delay_facilities",
+      "query": "What delay thresholds based on flight block time trigger passenger facilities for passengers who checked in on time?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p6_c1"]
+    },
+    {
+      "id": "R009",
+      "topic": "long_domestic_delay",
+      "query": "What options must airlines offer if a domestic flight is expected to be delayed by more than six hours?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p6_c1"]
+    },
+    {
+      "id": "R010",
+      "topic": "hotel_accommodation",
+      "query": "What facilities are specified for long delays and flights scheduled to depart between 2000 and 0300 hours?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p6_c1", "dgca_car_revision_4_p6_c2"]
+    },
+    {
+      "id": "R011",
+      "topic": "delay_exceptions",
+      "query": "When may an airline not be obliged to provide delay-related facilities because of extraordinary circumstances?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p6_c2"]
+    },
+    {
+      "id": "R012",
+      "topic": "delay_notification_proof",
+      "query": "Who bears the burden of proving whether and when a passenger was informed about a flight delay?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p6_c2"]
+    },
+    {
+      "id": "R013",
+      "topic": "denied_boarding",
+      "query": "What should an airline do first when more confirmed passengers report for a flight than there are available seats?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p4_c1"]
+    },
+    {
+      "id": "R014",
+      "topic": "denied_boarding",
+      "query": "How does the timing of an alternate flight affect compensation after involuntary denied boarding?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p4_c1", "dgca_car_revision_4_p4_c2"]
+    },
+    {
+      "id": "R015",
+      "topic": "denied_boarding_compensation",
+      "query": "What compensation provisions apply when an alternate flight departs within 24 hours, after 24 hours, or the passenger declines an alternate flight?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p4_c2"]
+    },
+    {
+      "id": "R016",
+      "topic": "connecting_flights",
+      "query": "What applies when a passenger denied boarding on the first leg of a connecting journey reaches the final destination at least three hours late?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p4_c2", "dgca_car_revision_4_p5_c1"]
+    },
+    {
+      "id": "R017",
+      "topic": "downgrading",
+      "query": "What reimbursement provisions apply when a passenger is involuntarily downgraded to a lower travel class?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p6_c2", "dgca_car_revision_4_p7_c1"]
+    },
+    {
+      "id": "R018",
+      "topic": "foreign_carriers",
+      "query": "Which compensation rules may apply to foreign carriers operating flights to or from India?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p7_c1"]
+    },
+    {
+      "id": "R019",
+      "topic": "compensation_payment",
+      "query": "What payment methods are permitted for compensation under the specified denied boarding and cancellation provisions?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p7_c1"]
+    },
+    {
+      "id": "R020",
+      "topic": "passenger_facilities",
+      "query": "Which passenger facilities must be provided free of charge, including meals, refreshments and accommodation?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p7_c1"]
+    },
+    {
+      "id": "R021",
+      "topic": "passenger_complaints",
+      "query": "When may an affected passenger complain directly to the airline about missing compensation or passenger facilities?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p7_c1"]
+    },
+    {
+      "id": "R022",
+      "topic": "grievance_redressal",
+      "query": "How can passengers escalate an unresolved airline grievance through Air Sewa or a statutory body?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p7_c1", "dgca_car_revision_4_p7_c2"]
+    },
+    {
+      "id": "R023",
+      "topic": "alternate_airports",
+      "query": "Who pays for transferring passengers between alternate and booked airports, and how does advance notice affect responsibility?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p8_c1"]
+    },
+    {
+      "id": "R024",
+      "topic": "passenger_rights",
+      "query": "What information about refunds, compensation and passenger facilities must airlines display on their websites?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p8_c1", "dgca_car_revision_4_p8_c2"]
+    },
+    {
+      "id": "R025",
+      "topic": "grievance_redressal",
+      "query": "What grievance-handling officers must airlines appoint, and what information must they display on their websites?",
+      "relevant_chunk_ids": ["dgca_car_revision_4_p8_c2"]
+    }
+  ]
+}

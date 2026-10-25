@@ -9,7 +9,7 @@ from tools.corpus_search import CorpusSearch
 
 
 class FakeEmbeddingModel:
-    """Lightweight replacement for the real embedding model in unit tests."""
+    """Lightweight embedding-model substitute for unit tests."""
 
     def __init__(self, model_name):
         self.model_name = model_name
@@ -20,14 +20,11 @@ class FakeEmbeddingModel:
         self.last_texts = texts
         self.last_encode_kwargs = kwargs
 
-        return np.asarray(
-            [[1.0, 0.0]],
-            dtype=np.float32,
-        )
+        return np.asarray([[1.0, 0.0]], dtype=np.float32)
 
 
 class FakeFaissIndex:
-    """Predictable FAISS substitute for testing result handling."""
+    """Predictable FAISS substitute for testing ranking and result handling."""
 
     def __init__(self):
         self.ntotal = 2
@@ -49,7 +46,6 @@ def corpus_search(monkeypatch, tmp_path):
     index_file = tmp_path / "corpus.faiss"
     chunks_file = tmp_path / "chunks.json"
 
-    # The implementation checks for the index file's existence.
     index_file.write_bytes(b"fake-index")
 
     chunks = [
@@ -106,28 +102,42 @@ def test_search_returns_ranked_passages_with_citations(corpus_search):
 
     assert len(results) == 2
 
-    # The search results should follow the index's ranking.
+    # The original semantic ranking remains visible.
     assert results[0]["chunk_id"] == "DGCA-3.3.2"
     assert results[1]["chunk_id"] == "DGCA-3.3.1"
 
-    # Source traceability must be preserved.
     assert results[0]["source"] == "dgca_car_revision_4.pdf"
     assert results[0]["page"] == 5
     assert results[0]["text"] == (
         "Alternate flight and compensation provision."
     )
 
-    # Scores must be returned as numeric values.
     assert results[0]["similarity_score"] == pytest.approx(0.91)
     assert results[1]["similarity_score"] == pytest.approx(0.72)
 
-    # Query embeddings must use the same normalization convention.
+    assert "lexical_score" in results[0]
+    assert "retrieval_score" in results[0]
+
     assert corpus_search.model.last_texts == [
         "What happens when a flight is cancelled?"
     ]
     assert corpus_search.model.last_encode_kwargs[
         "normalize_embeddings"
     ] is True
+
+
+def test_lexical_overlap_can_promote_a_relevant_passage(corpus_search):
+    # FAISS ranks chunk 3.3.2 first, but the query directly matches
+    # the cancellation and notification terms in chunk 3.3.1.
+    results = corpus_search.search(
+        "cancellation notification requirement",
+        top_k=2,
+    )
+
+    assert results[0]["chunk_id"] == "DGCA-3.3.1"
+    assert results[0]["similarity_score"] == pytest.approx(0.72)
+    assert results[0]["lexical_score"] > results[1]["lexical_score"]
+    assert results[0]["retrieval_score"] > results[1]["retrieval_score"]
 
 
 def test_search_rejects_empty_query(corpus_search):
