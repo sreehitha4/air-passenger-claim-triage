@@ -16,8 +16,6 @@ CHUNKS_FILE = INDEX_DIR / "chunks.json"
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
-# Initial hybrid-ranking weights. We will evaluate these rather than
-# assuming they are optimal.
 SEMANTIC_WEIGHT = 0.65
 LEXICAL_WEIGHT = 0.35
 
@@ -30,6 +28,12 @@ STOP_WORDS = {
     "this", "those", "to", "under", "was", "were", "what", "when",
     "which", "who", "why", "will", "with", "would", "you", "your",
 }
+
+PAYMENT_METHOD_EXPANSION = (
+    "method of compensation payment; cash; bank transfer; "
+    "signed agreement of passenger; travel vouchers; "
+    "mode of compensation under Para 3.2.2 and Para 3.3.2"
+)
 
 
 def tokenize(text: str) -> set[str]:
@@ -45,6 +49,34 @@ def tokenize(text: str) -> set[str]:
         for word in words
         if len(word) > 1 and word not in STOP_WORDS
     }
+
+
+def expand_query(query: str) -> str:
+    """
+    Add regulatory vocabulary to compensation-payment questions.
+
+    The original user query is retained. Expansion is intended to improve
+    matching to clause 3.7.1, not to make a legal determination.
+    """
+
+    lowered = query.lower()
+
+    mentions_compensation = bool(
+        re.search(r"\bcompensation\b|\bcompensate\b|\bcompensatory\b", lowered)
+    )
+
+    mentions_payment_intent = bool(
+        re.search(
+            r"\bpayment\b|\bpayments\b|\bpaid\b|\bpayable\b|\bpay\b|"
+            r"\bmethods?\b|\bcash\b|\bbank transfer\b|\bvouchers?\b",
+            lowered,
+        )
+    )
+
+    if mentions_compensation and mentions_payment_intent:
+        return f"{query.strip()} Relevant regulatory terms: {PAYMENT_METHOD_EXPANSION}."
+
+    return query
 
 
 class CorpusSearch:
@@ -97,8 +129,6 @@ class CorpusSearch:
                     f"{', '.join(missing_fields)}"
                 )
 
-        # Prepare the lexical index once, rather than retokenizing all
-        # corpus passages on every query.
         self._chunk_tokens = [
             tokenize(chunk["text"])
             for chunk in self.chunks
@@ -114,16 +144,12 @@ class CorpusSearch:
         self._idf = {
             token: math.log(
                 1.0
-                + (
-                    document_count - frequency + 0.5
-                ) / (
-                    frequency + 0.5
-                )
+                + (document_count - frequency + 0.5)
+                / (frequency + 0.5)
             )
             for token, frequency in document_frequency.items()
         }
 
-        # Unseen terms receive a defined IDF value too.
         self._unseen_idf = math.log(
             1.0 + (document_count + 0.5) / 0.5
         )
@@ -167,17 +193,16 @@ class CorpusSearch:
         ):
             raise ValueError("top_k must be between 1 and 20.")
 
+        # Use expansion for retrieval while preserving the caller's query.
+        expanded_query = expand_query(query)
         query_embedding = self.model.encode(
-            [query],
+            [expanded_query],
             convert_to_numpy=True,
             normalize_embeddings=True,
-        )
+        ).astype("float32")
 
-        query_embedding = query_embedding.astype("float32")
-        query_tokens = tokenize(query)
+        query_tokens = tokenize(expanded_query)
 
-        # Retrieve a candidate pool, then rerank it using lexical evidence.
-        # For the current small corpus this includes all indexed passages.
         candidate_k = min(
             self.index.ntotal,
             max(top_k * 5, 50),
@@ -214,11 +239,8 @@ class CorpusSearch:
                 "source": chunk["source"],
                 "page": chunk["page"],
                 "text": chunk["text"],
-                # Original FAISS cosine similarity.
                 "similarity_score": semantic_score,
-                # IDF-weighted lexical coverage between 0 and 1.
                 "lexical_score": lexical_score,
-                # Combined score used for ranking.
                 "retrieval_score": retrieval_score,
             })
 

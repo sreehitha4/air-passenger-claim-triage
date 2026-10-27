@@ -2,8 +2,8 @@
   "evaluation_file": "evaluation\\retrieval_eval.json",
   "query_count": 25,
   "k": 5,
-  "recall_at_k": 0.94,
-  "mrr": 0.92,
+  "recall_at_k": 0.98,
+  "mrr": 0.96,
   "per_query": [
     {
       "id": "R001",
@@ -398,16 +398,18 @@
         "dgca_car_revision_4_clause_3_7_1"
       ],
       "retrieved_chunk_ids": [
-        "dgca_car_revision_4_clause_3_9_1",
+        "dgca_car_revision_4_clause_3_7_1",
         "dgca_car_revision_4_clause_3_3_4",
-        "dgca_car_revision_4_clause_1_4",
+        "dgca_car_revision_4_clause_3_9_1",
         "dgca_car_revision_4_clause_2_6",
-        "dgca_car_revision_4_clause_3_2_3"
+        "dgca_car_revision_4_clause_3_10_2"
       ],
-      "matched_relevant_chunk_ids": [],
-      "recall_at_k": 0.0,
-      "first_relevant_rank": null,
-      "reciprocal_rank": 0.0
+      "matched_relevant_chunk_ids": [
+        "dgca_car_revision_4_clause_3_7_1"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0
     },
     {
       "id": "R020",

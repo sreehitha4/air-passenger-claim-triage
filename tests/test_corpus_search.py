@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import tools.corpus_search as corpus_search_module
-from tools.corpus_search import CorpusSearch
+from tools.corpus_search import CorpusSearch, expand_query
 
 
 class FakeEmbeddingModel:
@@ -19,7 +19,6 @@ class FakeEmbeddingModel:
     def encode(self, texts, **kwargs):
         self.last_texts = texts
         self.last_encode_kwargs = kwargs
-
         return np.asarray([[1.0, 0.0]], dtype=np.float32)
 
 
@@ -45,7 +44,6 @@ def corpus_search(monkeypatch, tmp_path):
 
     index_file = tmp_path / "corpus.faiss"
     chunks_file = tmp_path / "chunks.json"
-
     index_file.write_bytes(b"fake-index")
 
     chunks = [
@@ -101,8 +99,6 @@ def test_search_returns_ranked_passages_with_citations(corpus_search):
     )
 
     assert len(results) == 2
-
-    # The original semantic ranking remains visible.
     assert results[0]["chunk_id"] == "DGCA-3.3.2"
     assert results[1]["chunk_id"] == "DGCA-3.3.1"
 
@@ -114,7 +110,6 @@ def test_search_returns_ranked_passages_with_citations(corpus_search):
 
     assert results[0]["similarity_score"] == pytest.approx(0.91)
     assert results[1]["similarity_score"] == pytest.approx(0.72)
-
     assert "lexical_score" in results[0]
     assert "retrieval_score" in results[0]
 
@@ -127,8 +122,6 @@ def test_search_returns_ranked_passages_with_citations(corpus_search):
 
 
 def test_lexical_overlap_can_promote_a_relevant_passage(corpus_search):
-    # FAISS ranks chunk 3.3.2 first, but the query directly matches
-    # the cancellation and notification terms in chunk 3.3.1.
     results = corpus_search.search(
         "cancellation notification requirement",
         top_k=2,
@@ -138,6 +131,43 @@ def test_lexical_overlap_can_promote_a_relevant_passage(corpus_search):
     assert results[0]["similarity_score"] == pytest.approx(0.72)
     assert results[0]["lexical_score"] > results[1]["lexical_score"]
     assert results[0]["retrieval_score"] > results[1]["retrieval_score"]
+
+
+def test_payment_method_query_expands_regulatory_terms():
+    query = (
+        "What payment methods are permitted for compensation under the "
+        "specified denied boarding and cancellation provisions?"
+    )
+
+    expanded = expand_query(query)
+
+    assert expanded.startswith(query)
+    for term in (
+        "cash",
+        "bank transfer",
+        "signed agreement",
+        "travel vouchers",
+        "3.2.2",
+        "3.3.2",
+    ):
+        assert term in expanded
+
+
+def test_unrelated_query_is_not_expanded():
+    query = "When must the airline inform passengers about a cancellation?"
+
+    assert expand_query(query) == query
+
+
+def test_payment_method_search_embeds_expanded_query(corpus_search):
+    query = "How should compensation be paid under cancellation provisions?"
+
+    corpus_search.search(query)
+
+    embedded_query = corpus_search.model.last_texts[0]
+    assert embedded_query.startswith(query)
+    assert "bank transfer" in embedded_query
+    assert "travel vouchers" in embedded_query
 
 
 def test_search_rejects_empty_query(corpus_search):
