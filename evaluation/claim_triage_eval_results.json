@@ -1,0 +1,823 @@
+{
+  "evaluation_version": 1,
+  "dataset": "claim_triage_eval.json",
+  "scenario_count": 20,
+  "passed": 20,
+  "failed": 0,
+  "pass_rate": 1.0,
+  "results": [
+    {
+      "scenario_id": "T001",
+      "description": "Complete cancellation claim",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 6
+      }
+    },
+    {
+      "scenario_id": "T002",
+      "description": "Cancellation notification time missing",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "request_evidence",
+          "actual": "request_evidence"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [
+            "notification_time"
+          ],
+          "actual": [
+            "notification_time"
+          ]
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "pending",
+          "actual": "pending"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "request_evidence",
+        "missing_information": [
+          "notification_time"
+        ],
+        "verification_status": "pending",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 0
+      }
+    },
+    {
+      "scenario_id": "T003",
+      "description": "Alternate-flight delay missing",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "request_evidence",
+          "actual": "request_evidence"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [
+            "alternate_flight_delay_hours"
+          ],
+          "actual": [
+            "alternate_flight_delay_hours"
+          ]
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "pending",
+          "actual": "pending"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "request_evidence",
+        "missing_information": [
+          "alternate_flight_delay_hours"
+        ],
+        "verification_status": "pending",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 0
+      }
+    },
+    {
+      "scenario_id": "T004",
+      "description": "Cancellation notice and alternate-flight delay both missing",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "request_evidence",
+          "actual": "request_evidence"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [
+            "notification_time",
+            "alternate_flight_delay_hours"
+          ],
+          "actual": [
+            "notification_time",
+            "alternate_flight_delay_hours"
+          ]
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "pending",
+          "actual": "pending"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "request_evidence",
+        "missing_information": [
+          "notification_time",
+          "alternate_flight_delay_hours"
+        ],
+        "verification_status": "pending",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 0
+      }
+    },
+    {
+      "scenario_id": "T005",
+      "description": "Cancellation with early notification",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 6
+      }
+    },
+    {
+      "scenario_id": "T006",
+      "description": "Cancellation with notification one day before departure",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 6
+      }
+    },
+    {
+      "scenario_id": "T007",
+      "description": "Cancellation without an alternate flight",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 6
+      }
+    },
+    {
+      "scenario_id": "T008",
+      "description": "Delay with actual departure timestamp missing",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "request_evidence",
+          "actual": "request_evidence"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [
+            "actual_departure"
+          ],
+          "actual": [
+            "actual_departure"
+          ]
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "pending",
+          "actual": "pending"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "request_evidence",
+        "missing_information": [
+          "actual_departure"
+        ],
+        "verification_status": "pending",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 0
+      }
+    },
+    {
+      "scenario_id": "T009",
+      "description": "Delay with actual departure timestamp provided",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 6
+      }
+    },
+    {
+      "scenario_id": "T010",
+      "description": "Description mentions departure but timestamp is missing",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "request_evidence",
+          "actual": "request_evidence"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [
+            "actual_departure"
+          ],
+          "actual": [
+            "actual_departure"
+          ]
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "pending",
+          "actual": "pending"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "request_evidence",
+        "missing_information": [
+          "actual_departure"
+        ],
+        "verification_status": "pending",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 0
+      }
+    },
+    {
+      "scenario_id": "T011",
+      "description": "Delay with an alternate departure time supplied",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 6
+      }
+    },
+    {
+      "scenario_id": "T012",
+      "description": "Complete denied-boarding claim",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 4
+      }
+    },
+    {
+      "scenario_id": "T013",
+      "description": "Denied boarding does not require cancellation notification time",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 4
+      }
+    },
+    {
+      "scenario_id": "T014",
+      "description": "Complete downgrading claim",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 1
+      }
+    },
+    {
+      "scenario_id": "T015",
+      "description": "Other disruption type",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 3
+      }
+    },
+    {
+      "scenario_id": "T016",
+      "description": "Cancellation with alternate flight and delay details",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 6
+      }
+    },
+    {
+      "scenario_id": "T017",
+      "description": "Cancellation claim for IndiGo",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 6
+      }
+    },
+    {
+      "scenario_id": "T018",
+      "description": "Denied boarding with evidence reference",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 4
+      }
+    },
+    {
+      "scenario_id": "T019",
+      "description": "Delay claim with a timezone-aware departure timestamp",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 6
+      }
+    },
+    {
+      "scenario_id": "T020",
+      "description": "General grievance with supporting evidence reference",
+      "passed": true,
+      "checks": [
+        {
+          "field": "next_action",
+          "passed": true,
+          "expected": "complete",
+          "actual": "complete"
+        },
+        {
+          "field": "missing_information",
+          "passed": true,
+          "expected": [],
+          "actual": []
+        },
+        {
+          "field": "verification_status",
+          "passed": true,
+          "expected": "verified",
+          "actual": "verified"
+        },
+        {
+          "field": "no_recommendation",
+          "passed": true,
+          "expected": null,
+          "actual": null
+        }
+      ],
+      "actual": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "recommendation": null,
+        "escalation_reason": null,
+        "clause_assessment_count": 3
+      }
+    }
+  ]
+}

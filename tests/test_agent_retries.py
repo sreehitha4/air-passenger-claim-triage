@@ -38,12 +38,18 @@ def test_graph_retries_after_verification_failure(monkeypatch):
         return original_verify(state)
 
     monkeypatch.setattr(
-        graph_module, "verify_evidence_node", verify_once_fails
+        graph_module,
+        "verify_evidence_node",
+        verify_once_fails,
     )
 
     graph = graph_module.build_claim_graph()
-    result = graph.invoke({"claim": make_claim(), "retry_count": 0})
+    result = graph.invoke({
+        "claim": make_claim(),
+        "retry_count": 0,
+    })
 
+    # The graph should retry once and then verify successfully.
     assert attempts["count"] == 2
     assert result["verification_status"] == "verified"
     assert result["next_action"] == "complete"
@@ -57,18 +63,27 @@ def test_graph_escalates_after_retry_limit(monkeypatch):
         return {
             "verification_status": "failed",
             "next_action": "human_review",
-            "escalation_reason": "Simulated persistent verification failure",
+            "escalation_reason": (
+                "Simulated persistent verification failure"
+            ),
         }
 
     monkeypatch.setattr(
-        graph_module, "verify_evidence_node", always_fail_verification
+        graph_module,
+        "verify_evidence_node",
+        always_fail_verification,
     )
 
     graph = graph_module.build_claim_graph()
-    result = graph.invoke({"claim": make_claim(), "retry_count": 0})
+    result = graph.invoke({
+        "claim": make_claim(),
+        "retry_count": 0,
+    })
 
     # One initial verification plus two retries.
     assert attempts["count"] == 3
     assert result["verification_status"] == "failed"
     assert result["next_action"] == "human_review"
-    assert result["escalation_reason"] is not None
+    assert result["escalation_reason"] == (
+        "Simulated persistent verification failure"
+    )

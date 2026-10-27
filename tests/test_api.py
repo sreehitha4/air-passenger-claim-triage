@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 
+
 client = TestClient(app)
 
 
@@ -71,6 +72,33 @@ def test_missing_field_is_rejected_by_api():
 def test_unknown_field_is_rejected_by_api():
     claim = valid_claim()
     claim["unexpected_field"] = "not allowed"
+
+    response = client.post("/claims/validate", json=claim)
+
+    assert response.status_code == 422
+
+
+def test_invalid_disruption_type_is_rejected_by_api():
+    claim = valid_claim()
+    claim["disruption_type"] = "imaginary_disruption"
+
+    response = client.post("/claims/validate", json=claim)
+
+    assert response.status_code == 422
+
+
+def test_negative_alternate_flight_delay_is_rejected_by_api():
+    claim = valid_claim()
+    claim["alternate_flight_delay_hours"] = -1
+
+    response = client.post("/claims/validate", json=claim)
+
+    assert response.status_code == 422
+
+
+def test_description_exceeding_maximum_length_is_rejected():
+    claim = valid_claim()
+    claim["description"] = "x" * 5001
 
     response = client.post("/claims/validate", json=claim)
 

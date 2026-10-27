@@ -1,0 +1,349 @@
+
+{
+  "evaluation_version": 1,
+  "description": "Initial workflow evaluation dataset. Expected outcomes describe workflow behavior, not legal entitlement or compensation eligibility.",
+  "base_claim": {
+    "claim_id": "CLAIM-EVAL-BASE",
+    "passenger_name": "Evaluation Passenger",
+    "airline": "Example Airways",
+    "flight_number": "EA101",
+    "departure_airport": "BLR",
+    "arrival_airport": "DEL",
+    "scheduled_departure": "2026-11-01T10:00:00+05:30",
+    "disruption_type": "cancellation",
+    "notification_time": "2026-11-01T08:30:00+05:30",
+    "actual_departure": null,
+    "alternate_flight_taken": true,
+    "alternate_flight_delay_hours": 4,
+    "description": "The flight was cancelled before departure.",
+    "evidence_references": []
+  },
+  "scenarios": [
+    {
+      "id": "T001",
+      "description": "Complete cancellation claim",
+      "overrides": {},
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T002",
+      "description": "Cancellation notification time missing",
+      "overrides": {
+        "notification_time": null,
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null
+      },
+      "expected": {
+        "next_action": "request_evidence",
+        "missing_information": ["notification_time"],
+        "verification_status": "pending",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T003",
+      "description": "Alternate-flight delay missing",
+      "overrides": {
+        "alternate_flight_delay_hours": null
+      },
+      "expected": {
+        "next_action": "request_evidence",
+        "missing_information": ["alternate_flight_delay_hours"],
+        "verification_status": "pending",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T004",
+      "description": "Cancellation notice and alternate-flight delay both missing",
+      "overrides": {
+        "notification_time": null,
+        "alternate_flight_taken": true,
+        "alternate_flight_delay_hours": null
+      },
+      "expected": {
+        "next_action": "request_evidence",
+        "missing_information": [
+          "notification_time",
+          "alternate_flight_delay_hours"
+        ],
+        "verification_status": "pending",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T005",
+      "description": "Cancellation with early notification",
+      "overrides": {
+        "notification_time": "2026-10-10T10:00:00+05:30",
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T006",
+      "description": "Cancellation with notification one day before departure",
+      "overrides": {
+        "notification_time": "2026-10-31T10:00:00+05:30",
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T007",
+      "description": "Cancellation without an alternate flight",
+      "overrides": {
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T008",
+      "description": "Delay with actual departure timestamp missing",
+      "overrides": {
+        "disruption_type": "delay",
+        "notification_time": null,
+        "actual_departure": null,
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "description": "The flight was delayed."
+      },
+      "expected": {
+        "next_action": "request_evidence",
+        "missing_information": ["actual_departure"],
+        "verification_status": "pending",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T009",
+      "description": "Delay with actual departure timestamp provided",
+      "overrides": {
+        "disruption_type": "delay",
+        "notification_time": null,
+        "actual_departure": "2026-11-01T13:00:00+05:30",
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "description": "The flight departed later than scheduled."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T010",
+      "description": "Description mentions departure but timestamp is missing",
+      "overrides": {
+        "disruption_type": "delay",
+        "notification_time": null,
+        "actual_departure": null,
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "description": "The actual departure was delayed, but the exact time is unknown."
+      },
+      "expected": {
+        "next_action": "request_evidence",
+        "missing_information": ["actual_departure"],
+        "verification_status": "pending",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T011",
+      "description": "Delay with an alternate departure time supplied",
+      "overrides": {
+        "disruption_type": "delay",
+        "notification_time": null,
+        "actual_departure": "2026-11-01T14:00:00+05:30",
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "description": "The flight departed at the recorded actual departure time."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T012",
+      "description": "Complete denied-boarding claim",
+      "overrides": {
+        "disruption_type": "denied_boarding",
+        "notification_time": null,
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "description": "The passenger was denied boarding."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T013",
+      "description": "Denied boarding does not require cancellation notification time",
+      "overrides": {
+        "claim_id": "CLAIM-EVAL-T013",
+        "disruption_type": "denied_boarding",
+        "notification_time": null,
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "description": "The passenger was denied boarding against their will."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T014",
+      "description": "Complete downgrading claim",
+      "overrides": {
+        "disruption_type": "downgrading",
+        "notification_time": null,
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "description": "The passenger was carried in a lower class than booked."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T015",
+      "description": "Other disruption type",
+      "overrides": {
+        "disruption_type": "other",
+        "notification_time": null,
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "description": "The passenger wants to raise a general travel grievance."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T016",
+      "description": "Cancellation with alternate flight and delay details",
+      "overrides": {
+        "alternate_flight_taken": true,
+        "alternate_flight_delay_hours": 2.5,
+        "evidence_references": ["booking-confirmation.pdf"]
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T017",
+      "description": "Cancellation claim for IndiGo",
+      "overrides": {
+        "airline": "IndiGo",
+        "flight_number": "6E201",
+        "description": "An IndiGo flight was cancelled before departure."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T018",
+      "description": "Denied boarding with evidence reference",
+      "overrides": {
+        "disruption_type": "denied_boarding",
+        "notification_time": null,
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "evidence_references": ["boarding-pass.png"],
+        "description": "The passenger was denied boarding despite a confirmed booking."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T019",
+      "description": "Delay claim with a timezone-aware departure timestamp",
+      "overrides": {
+        "disruption_type": "delay",
+        "notification_time": null,
+        "actual_departure": "2026-11-01T12:45:00+05:30",
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "description": "The flight departed at 12:45 local time."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    },
+    {
+      "id": "T020",
+      "description": "General grievance with supporting evidence reference",
+      "overrides": {
+        "disruption_type": "other",
+        "notification_time": null,
+        "alternate_flight_taken": false,
+        "alternate_flight_delay_hours": null,
+        "evidence_references": ["airline-response.pdf"],
+        "description": "The passenger has already contacted the airline about a grievance."
+      },
+      "expected": {
+        "next_action": "complete",
+        "missing_information": [],
+        "verification_status": "verified",
+        "no_recommendation": true
+      }
+    }
+  ]
+}
