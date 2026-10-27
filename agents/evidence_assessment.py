@@ -1,3 +1,4 @@
+
 import re
 from typing import Any
 
@@ -45,8 +46,8 @@ def _citation_heading_matches(
     """
     Check whether clause_text starts with the declared clause heading.
 
-    This verifies consistency between citation metadata and the retrieved
-    text. It does not verify the legal meaning or applicability of the clause.
+    This verifies consistency between citation metadata and retrieved text.
+    It does not verify the legal meaning or applicability of the clause.
     """
 
     heading_pattern = (
@@ -155,6 +156,29 @@ def assess_clause_evidence(
         supporting_facts["disruption_type"] = disruption_type
         supporting_facts["evidence_references"] = (
             claim_facts.get("evidence_references")
+        )
+
+    # Record whether supporting evidence references were supplied.
+    # Their presence alone does not establish authenticity or sufficiency.
+    evidence_references = claim_facts.get("evidence_references")
+
+    has_evidence_references = (
+        isinstance(evidence_references, list)
+        and any(
+            isinstance(reference, str) and reference.strip()
+            for reference in evidence_references
+        )
+    )
+
+    if not has_evidence_references:
+        supporting_facts["evidence_reference_status"] = (
+            "No supporting evidence references provided; "
+            "claim facts have not been corroborated."
+        )
+    else:
+        supporting_facts["evidence_reference_status"] = (
+            "Evidence references supplied; their authenticity "
+            "and relevance have not been independently verified."
         )
 
     # These checks are review prompts, not a determination that a
