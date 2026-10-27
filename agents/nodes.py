@@ -66,12 +66,13 @@ def analyze_claim_node(state: ClaimTriageState) -> dict:
         "next_action": next_action,
         "retry_count": state.get("retry_count", 0),
         "verification_status": "pending",
+        "retrieval_error": None,
         "escalation_reason": None,
     }
 
 
 def research_claim_node(state: ClaimTriageState) -> dict:
-    """Retrieve relevant passages and candidate regulatory provisions."""
+    """Retrieve regulatory passages and candidate provisions safely."""
 
     claim_facts = state.get("claim_facts", {})
     description = claim_facts.get("description", "")
@@ -83,27 +84,47 @@ def research_claim_node(state: ClaimTriageState) -> dict:
         f"and relevant conditions. Claim details: {description}"
     )
 
-    retrieval = RegulatoryRetrieval()
-    passages = retrieval.search_corpus(query, top_k=5)
-
     clauses_to_check = CLAUSES_BY_DISRUPTION.get(
         disruption_type,
         CLAUSES_BY_DISRUPTION["other"],
     )
 
-    applicable_provisions = []
+    try:
+        retrieval = RegulatoryRetrieval()
+        passages = retrieval.search_corpus(query, top_k=5)
 
-    for clause_number in clauses_to_check:
-        clause_results = retrieval.get_clause(clause_number)
+        applicable_provisions = []
 
-        for clause in clause_results:
-            if clause.get("source") == DGCA_SOURCE:
-                applicable_provisions.append(clause)
+        for clause_number in clauses_to_check:
+            clause_results = retrieval.get_clause(clause_number)
+
+            for clause in clause_results:
+                if clause.get("source") == DGCA_SOURCE:
+                    applicable_provisions.append(clause)
+
+    except Exception as exc:
+        # Keep the technical error for debugging, but do not expose its
+        # raw details as the user-facing escalation reason.
+        return {
+            "retrieved_passages": [],
+            "applicable_provisions": [],
+            "clause_assessments": [],
+            "retrieval_error": (
+                f"{type(exc).__name__}: {exc}"
+            ),
+            "verification_status": "failed",
+            "next_action": "retry",
+            "escalation_reason": (
+                "Regulatory retrieval failed. "
+                "A retry or human review is required."
+            ),
+        }
 
     return {
         "retrieved_passages": passages,
         "applicable_provisions": applicable_provisions,
         "clause_assessments": [],
+        "retrieval_error": None,
         "next_action": "verify",
         "verification_status": "pending",
         "escalation_reason": None,
@@ -117,6 +138,17 @@ def verify_evidence_node(state: ClaimTriageState) -> dict:
     This does not establish legal applicability, passenger eligibility,
     or entitlement to compensation.
     """
+
+    # Do not treat an unsuccessful retrieval as a normal verification.
+    if state.get("retrieval_error"):
+        return {
+            "verification_status": "failed",
+            "next_action": "retry",
+            "escalation_reason": (
+                "Regulatory retrieval failed. "
+                "A retry or human review is required."
+            ),
+        }
 
     provisions = state.get("applicable_provisions", [])
     disruption_type = state.get("claim_facts", {}).get(

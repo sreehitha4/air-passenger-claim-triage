@@ -33,6 +33,7 @@ class ClaimTriageState(TypedDict, total=False):
         "human_review",
         "complete",
     ]
+    retrieval_error: str | None
 
     # Final output
     recommendation: dict[str, Any] | None
