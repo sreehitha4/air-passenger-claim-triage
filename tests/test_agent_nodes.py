@@ -157,3 +157,47 @@ def test_research_treats_instruction_like_claim_text_as_query_data():
 
     # Missing retrieved clauses must not be treated as verified evidence.
     assert result["applicable_provisions"] == []
+def test_research_retry_uses_verification_feedback():
+    """A retry should use a targeted query, not repeat the initial query."""
+    from unittest.mock import patch
+    from agents.nodes import research_claim_node
+
+    queries = []
+
+    class FakeRetrieval:
+        def search_corpus(self, query, top_k=5):
+            queries.append(query)
+            return []
+
+        def get_clause(self, clause_number):
+            return []
+
+    claim_facts = {
+        "disruption_type": "cancellation",
+        "description": (
+            "Passenger accepted an alternate flight four hours later."
+        ),
+    }
+
+    with patch("agents.nodes.RegulatoryRetrieval", FakeRetrieval):
+        initial_result = research_claim_node({
+            "claim_facts": claim_facts,
+            "retry_count": 0,
+        })
+
+        retry_result = research_claim_node({
+            "claim_facts": claim_facts,
+            "retry_count": 1,
+            "escalation_reason": (
+                "Could not verify required candidate clause headings: 3.3.2"
+            ),
+        })
+
+    assert len(queries) == 2
+    assert queries[0] != queries[1]
+    assert "3.3.2" in queries[1]
+    assert "alternate-flight acceptance" in queries[1]
+    assert "passenger facilities" in queries[1]
+    assert initial_result["verification_status"] == "pending"
+    assert retry_result["verification_status"] == "pending"
+    assert retry_result["retrieval_error"] is None

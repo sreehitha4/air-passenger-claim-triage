@@ -78,11 +78,34 @@ def research_claim_node(state: ClaimTriageState) -> dict:
     description = claim_facts.get("description", "")
     disruption_type = claim_facts.get("disruption_type", "other")
 
-    query = (
-        f"DGCA flight {disruption_type} compensation, "
-        "alternate flights, passenger facilities, "
-        f"and relevant conditions. Claim details: {description}"
-    )
+    retry_count = state.get("retry_count", 0)
+    verification_feedback = state.get("escalation_reason")
+
+    if retry_count > 0:
+        feedback = (
+            verification_feedback
+            or "Required clause evidence was not verified."
+        )
+
+        query = (
+            f"Follow-up DGCA regulatory search for flight "
+            f"{disruption_type}. "
+            f"Previous verification feedback: {feedback} "
+            "Find provisions that qualify, limit, exempt, or modify "
+            "the initially relevant entitlement provisions. "
+            "Search cross-referenced clauses, definitions, conditions, "
+            "exceptions, notice periods, flight block-time categories, "
+            "alternate-flight acceptance, refund arrangements, and "
+            "passenger facilities including meals and refreshments. "
+            "Do not infer eligibility from a compensation amount alone. "
+            f"Claim details: {description}"
+        )
+    else:
+        query = (
+            f"DGCA flight {disruption_type} compensation, "
+            "alternate flights, passenger facilities, "
+            f"and relevant conditions. Claim details: {description}"
+        )
 
     clauses_to_check = CLAUSES_BY_DISRUPTION.get(
         disruption_type,
