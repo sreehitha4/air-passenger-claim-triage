@@ -201,3 +201,35 @@ def test_research_retry_uses_verification_feedback():
     assert initial_result["verification_status"] == "pending"
     assert retry_result["verification_status"] == "pending"
     assert retry_result["retrieval_error"] is None
+
+def test_verification_accepts_complete_valid_cancellation_evidence():
+    """Valid evidence for all required clauses should pass verification."""
+
+    required_clauses = [
+        "3.3.1",
+        "3.3.2",
+        "3.3.3",
+        "3.3.4",
+        "3.3.5",
+        "3.8.1",
+    ]
+
+    provisions = [
+        {
+            "clause_number": clause,
+            "source": "dgca_car_revision_4.pdf",
+            "page": 5,
+            "text": f"{clause} Valid test provision text.",
+        }
+        for clause in required_clauses
+    ]
+
+    result = verify_evidence_node({
+        "claim_facts": {"disruption_type": "cancellation"},
+        "applicable_provisions": provisions,
+        "retry_count": 0,
+    })
+
+    assert result["verification_status"] == "verified"
+    assert result["next_action"] == "complete"
+    assert result["escalation_reason"] is None

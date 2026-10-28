@@ -120,3 +120,83 @@ def test_triage_endpoint_requests_missing_delay_departure_evidence():
     assert "actual_departure" in body["missing_information"]
     assert body["evidence_request"]
     assert body.get("recommendation") is None
+
+from unittest.mock import patch
+
+from app.jobs import process_job, submit_job
+
+
+def test_submit_claim_returns_accepted_response():
+    with patch("app.main.process_job") as mocked_process:
+        response = client.post(
+            "/claims/submit",
+            json=valid_claim(),
+        )
+
+    assert response.status_code == 202
+
+    body = response.json()
+    assert body["claim_id"] == "CLAIM-API-001"
+    assert body["status"] == "queued"
+    assert body["job_id"]
+    assert body["status_url"] == f"/jobs/{body['job_id']}"
+
+    mocked_process.assert_called_once()
+
+
+def test_get_job_returns_404_for_unknown_job():
+    response = client.get("/jobs/nonexistent-job-id")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Job not found."
+
+
+def test_get_job_returns_completed_result():
+    claim = valid_claim()
+    job_id = submit_job(claim)
+
+    expected_result = {
+        "claim_id": claim["claim_id"],
+        "next_action": "complete",
+        "verification_status": "verified",
+    }
+
+    with patch(
+        "app.jobs.claim_graph.invoke",
+        return_value=expected_result,
+    ):
+        process_job(job_id, claim)
+
+    response = client.get(f"/jobs/{job_id}")
+
+    assert response.status_code == 200
+
+    body = response.json()
+    assert body["job_id"] == job_id
+    assert body["claim_id"] == claim["claim_id"]
+    assert body["status"] == "completed"
+    assert body["result"] == expected_result
+    assert body["error"] is None
+
+
+def test_get_job_returns_failed_status_and_safe_error():
+    claim = valid_claim()
+    job_id = submit_job(claim)
+
+    with patch(
+        "app.jobs.claim_graph.invoke",
+        side_effect=RuntimeError("Internal diagnostic details"),
+    ):
+        process_job(job_id, claim)
+
+    response = client.get(f"/jobs/{job_id}")
+
+    assert response.status_code == 200
+
+    body = response.json()
+    assert body["status"] == "failed"
+    assert body["result"] is None
+    assert body["error"] == (
+        "The claim triage workflow could not be completed."
+    )
+    assert "Internal diagnostic details" not in str(body)
