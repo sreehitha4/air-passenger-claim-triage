@@ -102,8 +102,8 @@
         "dgca_car_revision_4_clause_3_3_3",
         "dgca_car_revision_4_clause_3_10_2",
         "dgca_car_revision_4_clause_3_3_1",
-        "dgca_car_revision_4_clause_3_9_1",
-        "dgca_car_revision_4_clause_3_3"
+        "dgca_car_revision_4_clause_3_3",
+        "dgca_car_revision_4_clause_3_9_1"
       ],
       "matched_relevant_chunk_ids": [
         "dgca_car_revision_4_clause_3_3_3"
@@ -254,8 +254,8 @@
         "dgca_car_revision_4_clause_3_4_5",
         "dgca_car_revision_4_clause_3_9_1",
         "dgca_car_revision_4_clause_3_10_2",
-        "dgca_car_revision_4_clause_3_10_3",
-        "dgca_car_revision_4_clause_3_3_1"
+        "dgca_car_revision_4_clause_3_3_1",
+        "dgca_car_revision_4_clause_3_10_3"
       ],
       "matched_relevant_chunk_ids": [
         "dgca_car_revision_4_clause_3_4_5"
@@ -274,9 +274,9 @@
       "retrieved_chunk_ids": [
         "dgca_car_revision_4_clause_3_2_1",
         "dgca_car_revision_4_clause_3_3_2",
-        "dgca_car_revision_4_clause_3_10_2",
         "dgca_car_revision_4_clause_3_2_3",
-        "dgca_car_revision_4_clause_3_3_1"
+        "dgca_car_revision_4_clause_3_10_2",
+        "dgca_car_revision_4_clause_1_1"
       ],
       "matched_relevant_chunk_ids": [
         "dgca_car_revision_4_clause_3_2_1"
@@ -295,8 +295,8 @@
       "retrieved_chunk_ids": [
         "dgca_car_revision_4_clause_3_9_1",
         "dgca_car_revision_4_clause_3_2_2",
-        "dgca_car_revision_4_clause_1_5",
         "dgca_car_revision_4_clause_1_4",
+        "dgca_car_revision_4_clause_1_5",
         "dgca_car_revision_4_clause_3_2_3"
       ],
       "matched_relevant_chunk_ids": [
@@ -359,8 +359,8 @@
         "dgca_car_revision_4_clause_3_5_1",
         "dgca_car_revision_4_clause_2_10",
         "dgca_car_revision_4_clause_3_7_1",
-        "dgca_car_revision_4_clause_3_9",
-        "dgca_car_revision_4_clause_3_3_3"
+        "indigo_conditions_of_carriage_p2_c1",
+        "dgca_car_revision_4_clause_3_9"
       ],
       "matched_relevant_chunk_ids": [
         "dgca_car_revision_4_clause_3_5_1"

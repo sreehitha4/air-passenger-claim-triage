@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Air Passenger Claim Triage</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #172033;
+    }
+    header {
+      background: #17365d;
+      color: white;
+      padding: 25px max(20px, calc((100% - 1100px)/2));
+    }
+    header h1 { margin: 0 0 8px; }
+    header p { margin: 0; line-height: 1.5; color: #dce8f8; }
+    main {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    section {
+      background: white;
+      padding: 22px;
+      border: 1px solid #dce3ed;
+      border-radius: 12px;
+      min-width: 0;
+    }
+    h2 { margin-top: 0; font-size: 20px; }
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .full { grid-column: 1 / -1; }
+    label { font-size: 14px; font-weight: bold; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      font: inherit;
+    }
+    textarea { min-height: 85px; resize: vertical; }
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .check input { width: auto; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 11px 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .primary { background: #215fb5; color: white; }
+    .secondary { background: #e5edf8; color: #17365d; }
+    button:disabled { opacity: .6; cursor: wait; }
+    .status {
+      background: #eef2f7;
+      padding: 11px;
+      border-radius: 7px;
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .good { background: #e7f7ed; color: #17663a; }
+    .bad { background: #fff0ef; color: #a12525; }
+    .result { border-top: 1px solid #e1e7ef; margin-top: 15px; padding-top: 12px; }
+    .item {
+      border: 1px solid #e0e6ee;
+      border-radius: 7px;
+      padding: 11px;
+      margin: 8px 0;
+      overflow-wrap: anywhere;
+    }
+    .item strong { display: block; margin-bottom: 6px; }
+    .item p { margin: 4px 0; white-space: pre-wrap; line-height: 1.45; }
+    .pill {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      background: #e5efff;
+      color: #174b91;
+      font-weight: bold;
+    }
+    .muted, footer { color: #64748b; font-size: 13px; line-height: 1.5; }
+    footer { max-width: 1100px; padding: 0 16px 25px; margin: auto; }
+    @media (max-width: 760px) {
+      main { grid-template-columns: 1fr; }
+      .fields { grid-template-columns: 1fr; }
+      .full { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Air Passenger Claim Triage</h1>
+  <p>Submit a passenger claim, validate its details and review preliminary triage results with supporting regulatory evidence.</p>
+</header>
+
+<main>
+  <section>
+    <h2>Claim submission</h2>
+    <div id="formStatus" class="status">Enter the claim details and validate before running triage.</div>
+
+    <form id="claimForm">
+      <div class="fields">
+        <div class="field">
+          <label for="claim_id">Claim ID *</label>
+          <input id="claim_id" required maxlength="100" value="CLAIM-DEMO-001">
+        </div>
+        <div class="field">
+          <label for="passenger_name">Passenger name *</label>
+          <input id="passenger_name" required maxlength="150">
+        </div>
+        <div class="field">
+          <label for="airline">Airline *</label>
+          <input id="airline" required maxlength="150" placeholder="IndiGo">
+        </div>
+        <div class="field">
+          <label for="flight_number">Flight number *</label>
+          <input id="flight_number" required maxlength="30" placeholder="6E-101">
+        </div>
+        <div class="field">
+          <label for="departure_airport">Departure airport *</label>
+          <input id="departure_airport" required minlength="3" maxlength="10" placeholder="BLR">
+        </div>
+        <div class="field">
+          <label for="arrival_airport">Arrival airport *</label>
+          <input id="arrival_airport" required minlength="3" maxlength="10" placeholder="DEL">
+        </div>
+        <div class="field">
+          <label for="scheduled_departure">Scheduled departure *</label>
+          <input id="scheduled_departure" type="datetime-local" required>
+        </div>
+        <div class="field">
+          <label for="disruption_type">Disruption type *</label>
+          <select id="disruption_type" required>
+            <option value="cancellation">Cancellation</option>
+            <option value="delay">Delay</option>
+            <option value="denied_boarding">Denied boarding</option>
+            <option value="downgrading">Downgrading</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="notification_time">Notification time</label>
+          <input id="notification_time" type="datetime-local">
+        </div>
+        <div class="field">
+          <label for="actual_departure">Actual departure</label>
+          <input id="actual_departure" type="datetime-local">
+        </div>
+        <div class="field">
+          <label for="alternate_flight_delay_hours">Alternate-flight delay (hours)</label>
+          <input id="alternate_flight_delay_hours" type="number" min="0" max="168" step="0.25">
+        </div>
+        <div class="field full">
+          <label for="description">What happened? *</label>
+          <textarea id="description" required maxlength="5000" placeholder="Describe the disruption and airline communication."></textarea>
+        </div>
+        <div class="field full">
+          <label class="check">
+            <input id="alternate_flight_taken" type="checkbox">
+            I took an alternate flight
+          </label>
+        </div>
+        <div class="field full">
+          <label for="evidence_references">Evidence references (one per line)</label>
+          <textarea id="evidence_references" placeholder="Booking confirmation&#10;Cancellation email&#10;Boarding pass"></textarea>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="validateBtn" class="secondary" type="button">Validate claim</button>
+        <button id="triageBtn" class="primary" type="submit">Validate &amp; run triage</button>
+      </div>
+    </form>
+    <p class="muted">Do not enter payment-card details or other unnecessary sensitive information.</p>
+  </section>
+
+  <section>
+    <h2>Triage results</h2>
+    <div id="resultStatus" class="status">No triage result yet.</div>
+    <div id="resultBody" class="muted">Results, missing information and evidence will appear here.</div>
+  </section>
+</main>
+
+<footer>
+  Decision-support prototype only. Results are preliminary; they do not establish final legal eligibility or authorize compensation payments.
+</footer>
+
+<script>
+const form = document.getElementById("claimForm");
+const formStatus = document.getElementById("formStatus");
+const resultStatus = document.getElementById("resultStatus");
+const resultBody = document.getElementById("resultBody");
+const validateBtn = document.getElementById("validateBtn");
+const triageBtn = document.getElementById("triageBtn");
+
+function isoDate(id) {
+  const value = document.getElementById(id).value;
+  if (!value) return null;
+  const date = new Date(value);
+  return date.toISOString();
+}
+
+function payload() {
+  const value = id => document.getElementById(id).value.trim();
+  const delay = value("alternate_flight_delay_hours");
+
+  return {
+    claim_id: value("claim_id"),
+    passenger_name: value("passenger_name"),
+    airline: value("airline"),
+    flight_number: value("flight_number"),
+    departure_airport: value("departure_airport"),
+    arrival_airport: value("arrival_airport"),
+    scheduled_departure: isoDate("scheduled_departure"),
+    disruption_type: value("disruption_type"),
+    notification_time: isoDate("notification_time"),
+    actual_departure: isoDate("actual_departure"),
+    alternate_flight_taken: document.getElementById("alternate_flight_taken").checked,
+    alternate_flight_delay_hours: delay === "" ? null : Number(delay),
+    description: value("description"),
+    evidence_references: value("evidence_references")
+      .split("\n").map(x => x.trim()).filter(Boolean)
+  };
+}
+
+function setStatus(element, text, kind = "") {
+  element.textContent = text;
+  element.className = "status" + (kind ? " " + kind : "");
+}
+
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[c]);
+}
+
+async function postJSON(path, data) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  const body = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const detail = body.detail;
+    const message = Array.isArray(detail)
+      ? detail.map(e => (e.loc || []).slice(1).join(".") + ": " + e.msg).join("\n")
+      : typeof detail === "string" ? detail : "Request failed (" + response.status + ")";
+    throw new Error(message);
+  }
+  return body;
+}
+
+function showList(title, values, format) {
+  if (!Array.isArray(values) || values.length === 0) return "";
+  return `<div class="result"><h3>${safe(title)} (${values.length})</h3>` +
+    values.map((v, i) => `<div class="item">${format(v, i)}</div>`).join("") +
+    "</div>";
+}
+
+function showEvidence(item) {
+  if (typeof item === "string") return `<p>${safe(item)}</p>`;
+  if (!item || typeof item !== "object") return `<p>${safe(item)}</p>`;
+
+  const title = item.clause_number || item.clause_id || item.title ||
+    item.source || item.chunk_id || "Evidence";
+  const text = item.text || item.passage || item.content || item.explanation || "";
+  const meta = [item.source, item.page != null ? "Page " + item.page : null]
+    .filter(Boolean).join(" · ");
+
+  return `<strong>${safe(title)}</strong>` +
+    (meta ? `<p class="muted">${safe(meta)}</p>` : "") +
+    `<p>${safe(text || JSON.stringify(item, null, 2))}</p>`;
+}
+
+function renderResult(data) {
+  let html = `<span class="pill">${safe((data.next_action || "Not specified").replaceAll("_", " "))}</span>`;
+  html += `<div class="result"><h3>Claim and verification</h3>
+    <div class="item"><strong>Claim ID</strong><p>${safe(data.claim_id || "—")}</p></div>
+    <div class="item"><strong>Verification status</strong><p>${safe(data.verification_status || "Not provided")}</p></div>`;
+
+  if (data.recommendation) {
+    html += `<div class="item"><strong>Preliminary recommendation</strong><p>${safe(
+      typeof data.recommendation === "string"
+        ? data.recommendation : JSON.stringify(data.recommendation, null, 2)
+    )}</p></div>`;
+  }
+  if (data.escalation_reason) {
+    html += `<div class="item"><strong>Escalation reason</strong><p>${safe(data.escalation_reason)}</p></div>`;
+  }
+  if (data.message) html += `<p class="muted">${safe(data.message)}</p>`;
+  html += "</div>";
+
+  html += showList("Missing information", data.missing_information,
+    x => `<p>${safe(typeof x === "string" ? x : JSON.stringify(x))}</p>`);
+  html += showList("Evidence requested", data.evidence_request,
+    x => `<p>${safe(typeof x === "string" ? x : JSON.stringify(x))}</p>`);
+  html += showList("Applicable provisions", data.applicable_provisions, showEvidence);
+  html += showList("Retrieved regulatory evidence", data.retrieved_passages, showEvidence);
+  html += showList("Clause assessments", data.clause_assessments,
+    x => `<p>${safe(typeof x === "string" ? x : JSON.stringify(x, null, 2))}</p>`);
+
+  resultBody.innerHTML = html;
+}
+
+function busy(value) {
+  validateBtn.disabled = value;
+  triageBtn.disabled = value;
+  validateBtn.textContent = value ? "Working..." : "Validate claim";
+  triageBtn.textContent = value ? "Running..." : "Validate & run triage";
+}
+
+validateBtn.addEventListener("click", async () => {
+  if (!form.reportValidity()) return;
+  busy(true);
+  setStatus(formStatus, "Validating claim...");
+  try {
+    const result = await postJSON("/claims/validate", payload());
+    setStatus(formStatus, result.message || "Claim validated.", "good");
+  } catch (error) {
+    setStatus(formStatus, error.message, "bad");
+  } finally {
+    busy(false);
+  }
+});
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!form.reportValidity()) return;
+  busy(true);
+  setStatus(formStatus, "Validating claim...");
+  setStatus(resultStatus, "Triage in progress...");
+  resultBody.textContent = "Waiting for the API response.";
+
+  try {
+    const data = payload();
+    const validation = await postJSON("/claims/validate", data);
+    setStatus(formStatus, validation.message || "Claim validated.", "good");
+
+    const result = await postJSON("/claims/triage", data);
+    setStatus(resultStatus, "Triage response received.", "good");
+    renderResult(result);
+  } catch (error) {
+    setStatus(formStatus, error.message, "bad");
+    setStatus(resultStatus, "Unable to complete triage.", "bad");
+    resultBody.textContent = "Check the error above and confirm the API is running.";
+  } finally {
+    busy(false);
+  }
+});
+</script>
+</body>
+</html>

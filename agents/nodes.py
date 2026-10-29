@@ -126,15 +126,13 @@ def research_claim_node(state: ClaimTriageState) -> dict:
                     applicable_provisions.append(clause)
 
     except Exception as exc:
-        # Keep the technical error for debugging, but do not expose its
-        # raw details as the user-facing escalation reason.
+        # Keep technical details for debugging, but do not expose them
+        # as the user-facing escalation reason.
         return {
             "retrieved_passages": [],
             "applicable_provisions": [],
             "clause_assessments": [],
-            "retrieval_error": (
-                f"{type(exc).__name__}: {exc}"
-            ),
+            "retrieval_error": f"{type(exc).__name__}: {exc}",
             "verification_status": "failed",
             "next_action": "retry",
             "escalation_reason": (
@@ -162,7 +160,6 @@ def verify_evidence_node(state: ClaimTriageState) -> dict:
     or entitlement to compensation.
     """
 
-    # Do not treat an unsuccessful retrieval as a normal verification.
     if state.get("retrieval_error"):
         return {
             "verification_status": "failed",
@@ -175,7 +172,8 @@ def verify_evidence_node(state: ClaimTriageState) -> dict:
 
     provisions = state.get("applicable_provisions", [])
     disruption_type = state.get("claim_facts", {}).get(
-        "disruption_type", "other"
+        "disruption_type",
+        "other",
     )
 
     required_clauses = set(

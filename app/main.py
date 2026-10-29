@@ -3,6 +3,8 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, status
 
 from app.models import PassengerClaim
 from app.jobs import submit_job, get_job, process_job
+from pathlib import Path
+from fastapi.responses import FileResponse
 
 app = FastAPI(
     title="Air Passenger Claim Triage Service",
@@ -14,6 +16,20 @@ app = FastAPI(
     version="0.4.0",
 )
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+WEB_INDEX = PROJECT_ROOT / "static" / "index.html"
+
+
+@app.get("/", include_in_schema=False)
+async def web_interface():
+    """Serve the claim triage website."""
+    if not WEB_INDEX.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Web interface not installed.",
+        )
+
+    return FileResponse(WEB_INDEX, media_type="text/html")
 
 @app.get("/health")
 async def health_check():
